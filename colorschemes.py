@@ -69,12 +69,26 @@ class Solid(ColorCycleTemplate):
 
     def init(self, strip, num_led):
         for led in range(0, num_led):
-            strip.set_pixel_rgb(led,0xFFFFFF,5) # Paint 5% white
+            strip.set_pixel_rgb_str(led,self.color,5) # Paint 5% white
 
     def update(self, strip, num_led, num_steps_per_cycle, current_step,
                current_cycle):
         # Do nothing: Init lit the strip, and update just keeps it this way
         return 0
+
+
+class Strobe(ColorCycleTemplate):
+    """Strobes a color."""
+    def update(self, strip, num_led, num_steps_per_cycle, current_step,
+               current_cycle):
+        if (current_step % 2 == 0) :
+           color = self.color
+        else:
+           color = "000000"
+
+        for pixel in range(num_led):
+           strip.set_pixel_rgb_str(pixel, color)
+        return 1
 
 
 class Rainbow(ColorCycleTemplate):

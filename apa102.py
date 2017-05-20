@@ -179,6 +179,19 @@ class APA102:
                         bright_percent)
 
 
+    def set_pixel_rgb_str(self, led_num, rgb_color, bright_percent=100):
+        """Sets the color of one pixel in the LED stripe.
+
+        The changed pixel is not shown yet on the Stripe, it is only
+        written to the pixel buffer.
+        Colors are passed combined (3 bytes concatenated)
+        If brightness is not set the global brightness setting is used.
+        """
+        lv = len(rgb_color)
+        rgb = tuple(int(rgb_color[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+        self.set_pixel(led_num, rgb[0], rgb[1], rgb[2], bright_percent)
+
+
     def rotate(self, positions=1):
         """ Rotate the LEDs by the specified number of positions.
 

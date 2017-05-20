@@ -1,6 +1,7 @@
 """The module contains templates for colour cycles"""
 import time
 import apa102
+import threading
 
 class ColorCycleTemplate:
     """This class is the basis of all color cycles.
@@ -9,13 +10,18 @@ class ColorCycleTemplate:
     'update' method.
     """
     def __init__(self, num_led, pause_value = 0, num_steps_per_cycle = 100,
-                 num_cycles = -1, global_brightness = 255, order = 'rbg'):
+                 num_cycles = -1, global_brightness = 255, order = 'rbg',
+                 color = 'ffffff', end_time = -1):
         self.num_led = num_led # The number of LEDs in the strip
         self.pause_value = pause_value # How long to pause between two runs
         self.num_steps_per_cycle = num_steps_per_cycle # Steps in one cycle.
         self.num_cycles = num_cycles # How many times will the program run
         self.global_brightness = global_brightness # Brightness of the strip
         self.order = order # Strip colour ordering
+        self.end_time = end_time # The amount of time to dispaly the effect.
+        self.color = color # The color to display on the strip.
+        self.running = threading.Event() # Thread safe way to stop the loop.
+        self.do_cleanup = True # If the color cycle should do a full cleanup.
 
     def init(self, strip, num_led):
         """This method is called to initialize a color program.
@@ -49,14 +55,20 @@ class ColorCycleTemplate:
 
     def cleanup(self, strip):
         """Cleanup method."""
-        self.shutdown(strip, self.num_led)
-        strip.clear_strip()
+        if(self.do_cleanup):
+            self.shutdown(strip, self.num_led)
+            strip.clear_strip()
         strip.cleanup()
 
+    def terminate(self, do_cleanup):
+        """Method for ending the effect."""
+        self.do_cleanup = do_cleanup
+        self.running.clear()
 
     def start(self):
         """This method does the actual work."""
         try:
+            self.running.set()
             strip = apa102.APA102(num_led=self.num_led,
                                   global_brightness=self.global_brightness,
                                   order=self.order) # Initialize the strip
@@ -64,13 +76,17 @@ class ColorCycleTemplate:
             self.init(strip, self.num_led) # Call the subclasses init method
             strip.show()
             current_cycle = 0
-            while True:  # Loop forever
+            # Loop while the thread event is set
+            while(self.running.is_set()):
                 for current_step in range (self.num_steps_per_cycle):
                     need_repaint = self.update(strip, self.num_led,
                                                self.num_steps_per_cycle,
                                                current_step, current_cycle)
                     if need_repaint:
                         strip.show() # repaint if required
+                    if(not self.running.is_set()): break
+                    if self.end_time != -1 and self.end_time < time.time():
+                        self.terminate(True)
                     time.sleep(self.pause_value) # Pause until the next step
                 current_cycle += 1
                 if self.num_cycles != -1:
