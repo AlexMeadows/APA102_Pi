@@ -67,6 +67,19 @@ class server(threading.Thread):
                      color = strip_color)
       self.my_cycle.start()
 
+   def fade(self, thread_ID, cycles, end_time, num_LEDs,
+            brightness, strip_color, pause_time = 0.028):
+      self.my_cycle = colorschemes.Fade(
+                     num_led = num_LEDs,
+                     pause_value = pause_time,
+                     num_steps_per_cycle = 200,
+                     num_cycles = cycles,
+                     end_time = end_time,
+                     global_brightness = brightness,
+                     order='rgb',
+                     color = strip_color)
+      self.my_cycle.start()
+
    def rainbow(self, thread_ID, cycles, end_time, num_LEDs,
                brightness, strip_color, pause_time = 0.005):
       self.my_cycle = colorschemes.Rainbow(
@@ -110,6 +123,7 @@ class server(threading.Thread):
                      "roundAndRound" : self.roundAndRound,
                      "solid"         : self.solid,
                      "strobe"        : self.strobe,
+                     "fade"          : self.fade,
                      "rainbow"       : self.rainbow,
                      }
 
