@@ -189,7 +189,10 @@ class APA102:
         """
         lv = len(rgb_color)
         rgb = tuple(int(rgb_color[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
-        self.set_pixel(led_num, rgb[0], rgb[1], rgb[2], bright_percent)
+        self.set_pixel(led_num,
+                       int(rgb[0]/100*bright_percent),
+                       int(rgb[1]/100*bright_percent),
+                       int(rgb[2]/100*bright_percent))
 
 
     def rotate(self, positions=1):

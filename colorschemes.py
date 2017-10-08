@@ -90,6 +90,29 @@ class Strobe(ColorCycleTemplate):
            strip.set_pixel_rgb_str(pixel, color)
         return 1
 
+class Fade(ColorCycleTemplate):
+    """Fades a color in and out."""
+    def init(self, strip, num_led):
+        self.direction = "up"
+        self.brightness = 0
+
+    def update(self, strip, num_led, num_steps_per_cycle, current_step,
+               current_cycle):
+        for pixel in range(num_led):
+           strip.set_pixel_rgb_str(pixel, self.color, self.brightness)
+        if (self.direction == "up"):
+           self.brightness+=1
+           if (self.brightness > 40):
+              self.brightness+=1
+           if (self.brightness >= 100):
+              self.direction = "down"
+        else:
+           self.brightness-=1
+           if (self.brightness > 40):
+              self.brightness-=1
+           if (self.brightness <= 0):
+              self.direction = "up"
+        return 1
 
 class Rainbow(ColorCycleTemplate):
     """Paints a rainbow effect across the entire strip."""
