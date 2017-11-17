@@ -9,6 +9,10 @@ class ColorCycleTemplate:
     A specific color cycle must subclass this template, and implement at least the
     'update' method.
     """
+    # Constants for the SPI bus / pins to use
+    MOSI = 10 # Hardware SPI uses BCM 10 & 11. Change these values for bit bang mode
+    SCLK = 11 # e.g. MOSI = 23, SCLK = 24 for Pimoroni Phat Beat or Blinkt!
+        
     def __init__(self, num_led, pause_value = 0, num_steps_per_cycle = 100,
                  num_cycles = -1, global_brightness = 255, order = 'rbg',
                  color = 'ffffff', end_time = -1):
@@ -71,6 +75,7 @@ class ColorCycleTemplate:
             self.running.set()
             strip = apa102.APA102(num_led=self.num_led,
                                   global_brightness=self.global_brightness,
+                                  mosi = self.MOSI, sclk = self.SCLK,
                                   order=self.order) # Initialize the strip
             strip.clear_strip()
             self.init(strip, self.num_led) # Call the subclasses init method
