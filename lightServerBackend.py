@@ -1,4 +1,4 @@
-import colorschemes
+from apa102_pi.colorschemes import colorschemes
 import threading
 import time
 
